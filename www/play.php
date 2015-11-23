@@ -41,7 +41,11 @@ function extractVideoUrl($pageUrl, $youtubedlPath)
 
     $lastLine = exec($cmd, $output, $exitCode);
     if ($exitCode !== 0) {
-        errorOut('youtube-dl error: ' . $lastLine);
+        if (strpos($lastLine, 'Unsupported URL') !== false) {
+            errorOut('Unsupported URL', '400 Unsupported URL (No video found)');
+        } else {
+            errorOut('youtube-dl error: ' . $lastLine);
+        }
     }
     return $lastLine;
 }
@@ -91,9 +95,9 @@ function errorInput($msg)
     exit(1);
 }
 
-function errorOut($msg)
+function errorOut($msg, $httpStatus = '500 Internal Server Error')
 {
-    header('HTTP/1.0 500 Internal Server Error');
+    header('HTTP/1.0 ' . $httpStatus);
     header('Content-type: text/plain');
     echo $msg . "\n";
     exit(2);
