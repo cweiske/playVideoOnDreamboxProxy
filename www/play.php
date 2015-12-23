@@ -14,12 +14,20 @@ playVideoOnDreambox($videoUrl, $dreamboxHost);
 
 function getPageUrl()
 {
-    if (!isset($_SERVER['CONTENT_TYPE'])) {
-        errorInput('Content type header missing');
-    } else if ($_SERVER['CONTENT_TYPE'] != 'text/plain') {
-        errorInput('Content type is not text/plain but ' . $_SERVER['CONTENT_TYPE']);
+    global $argv, $argc;
+    if (php_sapi_name() == 'cli') {
+        if ($argc < 2) {
+            errorInput('No URL given as command line parameter');
+        }
+        $pageUrl = $argv[1];
+    } else {
+        if (!isset($_SERVER['CONTENT_TYPE'])) {
+            errorInput('Content type header missing');
+        } else if ($_SERVER['CONTENT_TYPE'] != 'text/plain') {
+            errorInput('Content type is not text/plain but ' . $_SERVER['CONTENT_TYPE']);
+        }
+        $pageUrl = file_get_contents('php://input');
     }
-    $pageUrl = file_get_contents('php://input');
     $parts = parse_url($pageUrl);
     if ($parts === false) {
         errorInput('Invalid URL in POST data');
@@ -35,7 +43,7 @@ function extractVideoUrl($pageUrl, $youtubedlPath)
 {
     $cmd = $youtubedlPath
         . ' --quiet'
-        . ' --get-url'
+        . ' --dump-json'
         . ' ' . escapeshellarg($pageUrl)
         . ' 2>&1';
 
@@ -47,7 +55,24 @@ function extractVideoUrl($pageUrl, $youtubedlPath)
             errorOut('youtube-dl error: ' . $lastLine);
         }
     }
-    return $lastLine;
+
+    $json = implode("\n", $output);
+    $data = json_decode($json);
+
+    $url = null;
+    foreach ($data->formats as $format) {
+        //dreambox 7080hd does not play hls files
+        if (strpos($format->format, 'hls') !== false) {
+            continue;
+        }
+        $url = $format->url;
+    }
+
+    if ($url === null) {
+        //use URL chosen by youtube-dl
+        $url = $data->url;
+    }
+    return $url;
 }
 
 function playVideoOnDreambox($videoUrl, $dreamboxHost)
