@@ -50,7 +50,10 @@ function extractVideoUrl($pageUrl, $youtubedlPath)
     $lastLine = exec($cmd, $output, $exitCode);
     if ($exitCode !== 0) {
         if (strpos($lastLine, 'Unsupported URL') !== false) {
-            errorOut('Unsupported URL', '400 Unsupported URL (No video found)');
+            errorOut(
+                'Unsupported URL  at ' . $pageUrl,
+                '406 Unsupported URL (No video found)'
+            );
         } else {
             errorOut('youtube-dl error: ' . $lastLine);
         }
@@ -78,7 +81,7 @@ function extractVideoUrl($pageUrl, $youtubedlPath)
 function playVideoOnDreambox($videoUrl, $dreamboxHost)
 {
     ini_set('track_errors', 1);
-    $xml = file_get_contents('http://' . $dreamboxHost . '/web/session');
+    $xml = @file_get_contents('http://' . $dreamboxHost . '/web/session');
     if ($xml === false) {
         errorOut('Failed to fetch dreambox session token: ' . $php_errormsg);
     }
@@ -117,6 +120,7 @@ function errorInput($msg)
     header('HTTP/1.0 400 Bad Request');
     header('Content-type: text/plain');
     echo $msg . "\n";
+    syslog(LOG_ERR, 'playVideoOnDreamboxProxy: ' . $httpStatus . ':' .  $msg);
     exit(1);
 }
 
@@ -125,6 +129,7 @@ function errorOut($msg, $httpStatus = '500 Internal Server Error')
     header('HTTP/1.0 ' . $httpStatus);
     header('Content-type: text/plain');
     echo $msg . "\n";
+    syslog(LOG_ERR, 'playVideoOnDreamboxProxy: ' . $httpStatus . ': ' . $msg);
     exit(2);
 }
 ?>
