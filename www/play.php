@@ -45,7 +45,7 @@ function extractVideoUrl($pageUrl, $youtubedlPath)
         . ' --quiet'
         . ' --dump-json'
         . ' ' . escapeshellarg($pageUrl)
-        . ' 2>&1';
+        . ' 2> /dev/null';
 
     $lastLine = exec($cmd, $output, $exitCode);
     if ($exitCode !== 0) {
@@ -74,6 +74,13 @@ function extractVideoUrl($pageUrl, $youtubedlPath)
     if ($url === null) {
         //use URL chosen by youtube-dl
         $url = $data->url;
+    }
+
+    if ($url == '') {
+        errorOut(
+            'No video URL found',
+            '406 No video URL found'
+        );
     }
     return $url;
 }
