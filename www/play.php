@@ -9,7 +9,11 @@ if (file_exists($cfgFile)) {
 
 $pageUrl  = getPageUrl();
 $videoUrl = extractVideoUrl($pageUrl, $youtubedlPath);
-header('Video-URL: ' . $videoUrl);
+if (php_sapi_name() == 'cli') {
+    echo $videoUrl .  "\n";
+} else {
+    header('Video-URL: ' . $videoUrl);
+}
 playVideoOnDreambox($videoUrl, $dreamboxHost);
 
 function getPageUrl()
@@ -64,8 +68,12 @@ function extractVideoUrl($pageUrl, $youtubedlPath)
 
     $url = null;
     foreach ($data->formats as $format) {
-        //dreambox 7080hd does not play hls files
         if (strpos($format->format, 'hls') !== false) {
+            //dreambox 7080hd does not play hls files
+            continue;
+        }
+        if ($format->protocol == 'http_dash_segments') {
+            //split up into multiple small files
             continue;
         }
         $url = $format->url;
@@ -127,7 +135,6 @@ function errorInput($msg)
     header('HTTP/1.0 400 Bad Request');
     header('Content-type: text/plain');
     echo $msg . "\n";
-    syslog(LOG_ERR, 'playVideoOnDreamboxProxy: ' . $httpStatus . ':' .  $msg);
     exit(1);
 }
 
