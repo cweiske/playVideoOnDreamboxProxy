@@ -112,7 +112,9 @@ function playVideoOnDreambox($videoUrl, $dreamboxHost)
     );
     $ret = file_get_contents($playUrl, false, $ctx);
     if ($ret !== false) {
-        header('HTTP/1.0 200 OK');
+        if (php_sapi_name() != 'cli') {
+            header('HTTP/1.0 200 OK');
+        }
         echo "Video play request sent to dreambox\n";
         exit(0);
     } else {
