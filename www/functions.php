@@ -48,6 +48,7 @@ function getYoutubeDlJson($pageUrl, $youtubedlPath)
     }
 
     $json = implode("\n", $output);
+    return $json;
 }
 
 function extractVideoUrlFromJson($json)
