@@ -38,6 +38,10 @@ Send the web site URL via POST to ``play.php``::
           -H 'Content-type: text/plain'\
           http://proxy.example.org/play.php
 
+You can test it on command line, too::
+
+    $ php www/play.php http://example.org/page.htm
+
 
 =======
 License
