@@ -29,6 +29,7 @@ function getPageUrl()
 function getYoutubeDlJson($pageUrl, $youtubedlPath)
 {
     $cmd = $youtubedlPath
+        . ' --no-playlist'//would otherwise cause multiple json blocks
         . ' --quiet'
         . ' --dump-json'
         . ' ' . escapeshellarg($pageUrl)
