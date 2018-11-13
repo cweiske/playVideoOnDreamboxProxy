@@ -37,7 +37,12 @@ function getYoutubeDlJson($pageUrl, $youtubedlPath)
 
     $lastLine = exec($cmd, $output, $exitCode);
     if ($exitCode !== 0) {
-        if (strpos($lastLine, 'Unsupported URL') !== false) {
+        if ($exitCode === 127) {
+            errorOut(
+                'youtube-dl not found at ' . $youtubedlPath,
+                '500 youtube-dl not found'
+            );
+        } else if (strpos($lastLine, 'Unsupported URL') !== false) {
             errorOut(
                 'Unsupported URL  at ' . $pageUrl,
                 '406 Unsupported URL (No video found)'
