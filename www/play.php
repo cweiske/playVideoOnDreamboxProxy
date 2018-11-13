@@ -1,6 +1,6 @@
 <?php
 $youtubedlPath = '/usr/bin/youtube-dl';
-$dreamboxHost  = 'dreambox';
+$dreamboxUrl   = 'http://dreambox';
 
 require_once __DIR__ . '/functions.php';
 $cfgFile = __DIR__ . '/../data/config.php';
@@ -16,7 +16,7 @@ if (php_sapi_name() == 'cli') {
 } else {
     header('Video-URL: ' . $videoUrl);
 }
-playVideoOnDreambox($videoUrl, $dreamboxHost);
+playVideoOnDreambox($videoUrl, $dreamboxUrl);
 
 
 function errorInput($msg)

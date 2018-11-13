@@ -2,5 +2,5 @@
 //configuration for "play video on dreambox" proxy server
 // copy it to config.php and adjust it.
 $youtubedlPath = '/usr/bin/youtube-dl';
-$dreamboxHost  = 'dreambox';
+$dreamboxUrl   = 'http://dreambox';
 ?>

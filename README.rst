@@ -28,6 +28,11 @@ or IP address by creating a config file in ``data/config.php``.
 
 Simply copy ``data/config.php.dist`` onto ``data/config.php`` and adjust it.
 
+If your dreambox web interface is password protected, add the username
+and password to the ``$dreamboxUrl`` configuration variable::
+
+  $dreamboxUrl = 'http://user:pass@dreambox';
+
 
 =====
 Usage

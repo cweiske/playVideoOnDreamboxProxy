@@ -90,10 +90,10 @@ function extractVideoUrlFromJson($json)
     return $url;
 }
 
-function playVideoOnDreambox($videoUrl, $dreamboxHost)
+function playVideoOnDreambox($videoUrl, $dreamboxUrl)
 {
     ini_set('track_errors', 1);
-    $xml = @file_get_contents('http://' . $dreamboxHost . '/web/session');
+    $xml = @file_get_contents($dreamboxUrl . '/web/session');
     if ($xml === false) {
         list($http, $code, $message) = explode(
             ' ', $http_response_header[0], 3
@@ -114,7 +114,7 @@ function playVideoOnDreambox($videoUrl, $dreamboxHost)
     $sx = simplexml_load_string($xml);
     $token = (string) $sx;
 
-    $playUrl = 'http://' . $dreamboxHost
+    $playUrl = $dreamboxUrl
         . '/web/mediaplayerplay'
         . '?file=4097:0:1:0:0:0:0:0:0:0:'
         . str_replace('%3A', '%253A', rawurlencode($videoUrl));
