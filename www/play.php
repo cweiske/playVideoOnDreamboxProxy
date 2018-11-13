@@ -21,16 +21,20 @@ playVideoOnDreambox($videoUrl, $dreamboxHost);
 
 function errorInput($msg)
 {
-    header('HTTP/1.0 400 Bad Request');
-    header('Content-type: text/plain');
+    if (!headers_sent()) {
+        header('HTTP/1.0 400 Bad Request');
+        header('Content-type: text/plain');
+    }
     echo $msg . "\n";
     exit(1);
 }
 
 function errorOut($msg, $httpStatus = '500 Internal Server Error')
 {
-    header('HTTP/1.0 ' . $httpStatus);
-    header('Content-type: text/plain');
+    if (!headers_sent()) {
+        header('HTTP/1.0 ' . $httpStatus);
+        header('Content-type: text/plain');
+    }
     echo $msg . "\n";
     syslog(LOG_ERR, 'playVideoOnDreamboxProxy: ' . $httpStatus . ': ' . $msg);
     exit(2);

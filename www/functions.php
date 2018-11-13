@@ -95,7 +95,21 @@ function playVideoOnDreambox($videoUrl, $dreamboxHost)
     ini_set('track_errors', 1);
     $xml = @file_get_contents('http://' . $dreamboxHost . '/web/session');
     if ($xml === false) {
-        errorOut('Failed to fetch dreambox session token: ' . $php_errormsg);
+        list($http, $code, $message) = explode(
+            ' ', $http_response_header[0], 3
+        );
+        if ($code == 401) {
+            //dreambox web interface authentication has been enabled
+            errorOut(
+                'Error: Web interface authentication is required',
+                '401 Dreambox web authentication required'
+            );
+        } else {
+            errorOut(
+                'Failed to fetch dreambox session token: ' . $php_errormsg,
+                $code . ' ' . $message
+            );
+        }
     }
     $sx = simplexml_load_string($xml);
     $token = (string) $sx;
