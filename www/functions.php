@@ -7,14 +7,21 @@ function getPageUrl()
             errorInput('No URL given as command line parameter');
         }
         $pageUrl = $argv[1];
-    } else {
-        if (!isset($_SERVER['CONTENT_TYPE'])) {
-            errorInput('Content type header missing');
-        } else if ($_SERVER['CONTENT_TYPE'] != 'text/plain') {
-            errorInput('Content type is not text/plain but ' . $_SERVER['CONTENT_TYPE']);
-        }
+    } else if (!isset($_SERVER['CONTENT_TYPE'])) {
+        errorInput('Content type header missing');
+    } else if ($_SERVER['CONTENT_TYPE'] == 'text/plain') {
+        //Android app
         $pageUrl = file_get_contents('php://input');
+    } else if ($_SERVER['CONTENT_TYPE'] == 'application/x-www-form-urlencoded') {
+        //Web form
+        if (!isset($_POST['url'])) {
+            errorInput('"url" POST parameter missing');
+        }
+        $pageUrl = $_POST['url'];
+    } else {
+        errorInput('Content type is not text/plain but ' . $_SERVER['CONTENT_TYPE']);
     }
+
     $parts = parse_url($pageUrl);
     if ($parts === false) {
         errorInput('Invalid URL in POST data');

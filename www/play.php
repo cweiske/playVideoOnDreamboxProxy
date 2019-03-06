@@ -8,6 +8,11 @@ if (file_exists($cfgFile)) {
     include $cfgFile;
 }
 
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'GET') {
+    require __DIR__ . '/form.php';
+    exit();
+}
+
 set_error_handler('errorHandlerStore');
 
 $pageUrl  = getPageUrl();
