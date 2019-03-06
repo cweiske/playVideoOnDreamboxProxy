@@ -32,28 +32,47 @@ function getYoutubeDlJson($pageUrl, $youtubedlPath)
         . ' --no-playlist'//would otherwise cause multiple json blocks
         . ' --quiet'
         . ' --dump-json'
-        . ' ' . escapeshellarg($pageUrl)
-        . ' 2> /dev/null';
+        . ' ' . escapeshellarg($pageUrl);
 
-    $lastLine = exec($cmd, $output, $exitCode);
-    if ($exitCode !== 0) {
-        if ($exitCode === 127) {
-            errorOut(
-                'youtube-dl not found at ' . $youtubedlPath,
-                '500 youtube-dl not found'
-            );
-        } else if (strpos($lastLine, 'Unsupported URL') !== false) {
-            errorOut(
-                'Unsupported URL  at ' . $pageUrl,
-                '406 Unsupported URL (No video found)'
-            );
-        } else {
-            errorOut('youtube-dl error: ' . $lastLine);
-        }
+    $descriptors = [
+        1 => ['pipe', 'w'],//stdout
+        2 => ['pipe', 'w'],//stderr
+    ];
+    $proc = proc_open($cmd, $descriptors, $pipes);
+    if ($proc === false) {
+        errorOut('Error running youtube-dl');
+    }
+    $stdout = stream_get_contents($pipes[1]);
+    $stderr = stream_get_contents($pipes[2]);
+
+    $exitCode = proc_close($proc);
+
+    if ($exitCode === 0) {
+        //stdout contains the JSON data
+        return $stdout;
     }
 
-    $json = implode("\n", $output);
-    return $json;
+    if (strlen($stderr)) {
+        $lines = explode("\n", trim($stderr));
+        $lastLine = end($lines);
+    } else {
+        $lines = explode("\n", trim($stdout));
+        $lastLine = end($lines);
+    }
+
+    if ($exitCode === 127) {
+        errorOut(
+            'youtube-dl not found at ' . $youtubedlPath,
+            '500 youtube-dl not found'
+        );
+    } else if (strpos($lastLine, 'Unsupported URL') !== false) {
+        errorOut(
+            'Unsupported URL  at ' . $pageUrl,
+            '406 Unsupported URL (No video found)'
+        );
+    }
+
+    errorOut('youtube-dl error: ' . $lastLine);
 }
 
 function extractVideoUrlFromJson($json)
