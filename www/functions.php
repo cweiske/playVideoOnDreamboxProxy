@@ -114,6 +114,13 @@ function playVideoOnDreambox($videoUrl, $dreamboxUrl)
     ini_set('track_errors', 1);
     $xml = @file_get_contents($dreamboxUrl . '/web/session');
     if ($xml === false) {
+        if (!isset($http_response_header)) {
+            errorOut(
+                'Error fetching dreambox web interface token: '
+                . $GLOBALS['lastError']
+            );
+        }
+
         list($http, $code, $message) = explode(
             ' ', $http_response_header[0], 3
         );
@@ -161,4 +168,11 @@ function playVideoOnDreambox($videoUrl, $dreamboxUrl)
         );
     }
 }
+
+function errorHandlerStore($number, $message, $file, $line)
+{
+    $GLOBALS['lastError'] = $message;
+    return false;
+}
+$GLOBALS['lastError'] = null;
 ?>

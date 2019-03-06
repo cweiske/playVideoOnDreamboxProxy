@@ -8,6 +8,8 @@ if (file_exists($cfgFile)) {
     include $cfgFile;
 }
 
+set_error_handler('errorHandlerStore');
+
 $pageUrl  = getPageUrl();
 $json     = getYoutubeDlJson($pageUrl, $youtubedlPath);
 $videoUrl = extractVideoUrlFromJson($json);
