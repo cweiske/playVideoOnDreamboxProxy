@@ -8,6 +8,9 @@ if (file_exists($cfgFile)) {
     include $cfgFile;
 }
 
+//for the firefox extension
+header('Access-Control-Allow-Origin: *');
+
 if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'GET') {
     require __DIR__ . '/form.php';
     exit();
