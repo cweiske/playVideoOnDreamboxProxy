@@ -89,17 +89,36 @@ function extractVideoUrlFromJson($json)
         errorOut('Cannot decode JSON: ' . json_last_error_msg());
     }
 
-    $url = null;
+    $safeFormats = [];
     foreach ($data->formats as $format) {
         if (strpos($format->format, 'hls') !== false) {
             //dreambox 7080hd does not play hls files
+            continue;
+        }
+        if (strpos($format->format, 'vp9') !== false) {
+            //dreambox 7080hd does not play VP9 video streams
             continue;
         }
         if ($format->protocol == 'http_dash_segments') {
             //split up into multiple small files
             continue;
         }
+        if ($format->ext == 'flv') {
+            //Internal data flow error
+            continue;
+        }
+        $safeFormats[] = $format;
+    }
+
+    $url = null;
+
+    //filter: best quality
+    usort($safeFormats, function ($a, $b) {
+        return ($b->quality ?? 0) - ($a->quality ?? 0);
+    });
+    foreach ($safeFormats as $format) {
         $url = $format->url;
+        break;
     }
 
     if ($url === null) {
