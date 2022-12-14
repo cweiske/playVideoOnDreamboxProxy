@@ -133,6 +133,9 @@ function extractVideoUrlFromJson($json)
 
     //filter: best quality
     usort($safeFormats, function ($a, $b) {
+        if ((($a->acodec != 'none') + ($b->acodec != 'none')) == 1) {
+            return ($b->acodec != 'none') - ($a->acodec != 'none');
+        }
         return ($b->quality ?? 0) - ($a->quality ?? 0);
     });
     foreach ($safeFormats as $format) {
