@@ -2,11 +2,28 @@
 function getPageUrl()
 {
     global $argv, $argc;
+
+    $dryRun = false;
     if (php_sapi_name() == 'cli') {
         if ($argc < 2) {
-            errorInput('No URL given as command line parameter');
+            errorInput(
+                "No URL given as command line parameter\n"
+                . "Usage:\n"
+                . " play.php [--dry-run|-n] <url>"
+            );
         }
-        $pageUrl = $argv[1];
+        $options = [];
+        array_shift($argv);//remove script itself
+        foreach ($argv as $val) {
+            if ($val[0] == '-') {
+                $options[$val] = true;
+            } else {
+                $pageUrl = $val;
+            }
+        }
+        if (isset($options['--dry-run']) || isset($options['-n'])) {
+            $dryRun = true;
+        }
     } else if (!isset($_SERVER['CONTENT_TYPE'])) {
         errorInput('Content type header missing');
     } else if ($_SERVER['CONTENT_TYPE'] == 'text/plain') {
@@ -30,7 +47,7 @@ function getPageUrl()
     } else if ($parts['scheme'] !== 'http' && $parts['scheme'] !== 'https') {
         errorInput('Invalid URL in POST data: Non-HTTP scheme');
     }
-    return $pageUrl;
+    return [$pageUrl, $dryRun];
 }
 
 function getYoutubeDlJson($pageUrl, $youtubedlPath)

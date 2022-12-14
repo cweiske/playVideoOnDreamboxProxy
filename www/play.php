@@ -18,7 +18,7 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'GET') {
 
 set_error_handler('errorHandlerStore');
 
-$pageUrl  = getPageUrl();
+[$pageUrl, $dryRun] = getPageUrl();
 $json     = getYoutubeDlJson($pageUrl, $youtubedlPath);
 $videoUrl = extractVideoUrlFromJson($json);
 if (php_sapi_name() == 'cli') {
@@ -26,7 +26,9 @@ if (php_sapi_name() == 'cli') {
 } else {
     header('Video-URL: ' . $videoUrl);
 }
-playVideoOnDreambox($videoUrl, $dreamboxUrl);
+if (!$dryRun) {
+    playVideoOnDreambox($videoUrl, $dreamboxUrl);
+}
 
 
 function errorInput($msg)

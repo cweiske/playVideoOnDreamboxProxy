@@ -47,6 +47,10 @@ You can test it on command line, too::
 
     $ php www/play.php http://example.org/page.htm
 
+Testing the URL selection without playing on the dreambox is possible::
+
+    $ php www/play.php http://example.org/page.htm --dry-run
+
 
 =======
 License
