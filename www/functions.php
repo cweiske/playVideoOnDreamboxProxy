@@ -112,7 +112,9 @@ function extractVideoUrlFromJson($json)
             //dreambox 7080hd does not play hls files
             continue;
         }
-        if (strpos($format->format, 'vp9') !== false) {
+        if (strpos($format->format, 'vp9') !== false
+            || $format->vcodec == 'vp9'
+        ) {
             //dreambox 7080hd does not play VP9 video streams
             continue;
         }
