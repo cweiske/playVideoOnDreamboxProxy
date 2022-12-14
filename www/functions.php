@@ -118,6 +118,10 @@ function extractVideoUrlFromJson($json)
             //dreambox 7080hd does not play VP9 video streams
             continue;
         }
+        if (strtolower(substr($format->vcodec, 0, 6)) == 'avc1.6') {
+            //dreambox DM7080 does not play H.264 High Profile
+            continue;
+        }
         if ($format->protocol == 'http_dash_segments') {
             //split up into multiple small files
             continue;
@@ -139,6 +143,7 @@ function extractVideoUrlFromJson($json)
         return ($b->quality ?? 0) - ($a->quality ?? 0);
     });
     foreach ($safeFormats as $format) {
+        //echo $format->format . ' | ' . $format->vcodec . ' | ' . $format->acodec . "\n";
         $url = $format->url;
         break;
     }
