@@ -39,7 +39,7 @@ function getPageUrl()
         errorInput('Content type is not text/plain but ' . $_SERVER['CONTENT_TYPE']);
     }
 
-    $parts = parse_url($pageUrl);
+    $parts = parse_url($pageUrl ?? null);
     if ($parts === false) {
         errorInput('Invalid URL in POST data');
     } else if (!isset($parts['scheme'])) {
@@ -137,6 +137,8 @@ function extractVideoUrlFromJson($json)
 
     //filter: best quality
     usort($safeFormats, function ($a, $b) {
+        $a->acodec = $a->acodec ?? null;
+        $b->acodec = $b->acodec ?? null;
         if ((($a->acodec != 'none') + ($b->acodec != 'none')) == 1) {
             return ($b->acodec != 'none') - ($a->acodec != 'none');
         }
